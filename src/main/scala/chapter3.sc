@@ -57,7 +57,14 @@ def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B = {
   }
 }
 
-def length[A](as: List[A]): Iant = foldRight(as, 0)((_, count) => count + 1)
+def length[A](as: List[A]): Int = foldRight(as, 0)((_, count) => count + 1)
+
+def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = {
+  as match {
+    case Nil => z
+    case (x, xs) => foldLeft(xs, f(z, x))(f)
+  }
+}
 
 object List {
   def sum(ints: List[Int]): Int = ints match {
