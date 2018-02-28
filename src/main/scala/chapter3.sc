@@ -62,9 +62,11 @@ def length[A](as: List[A]): Int = foldRight(as, 0)((_, count) => count + 1)
 def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = {
   as match {
     case Nil => z
-    case (x, xs) => foldLeft(xs, f(z, x))(f)
+    case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
   }
 }
+
+def recursive[A](as: List[A]): List[A] = foldLeft(as, Nil:List[A])((x, y) => Cons(y, x))
 
 object List {
   def sum(ints: List[Int]): Int = ints match {
@@ -91,15 +93,13 @@ val ex2: List[Int] = Cons(1, Nil)
 val ex3: List[String] = Cons("a", Cons("b", Nil))
 
 // Exercise 1
-val x = List(1,2,3,4,5) match {
+List(1,2,3,4,5) match {
   case Cons(x, Cons(2, Cons(4, _))) => x
   case Nil => 42
   case Cons(x, Cons(y, Cons(3, Cons(4, _)))) => x + y
   case Cons(h, t) => h + sum(t)
   case _ => 101
 }
-
-x
 
 tail(ex3)
 
@@ -108,5 +108,6 @@ drop(a, 3)
 
 init(a)
 
-foldRight(List(1,2,3), Nil:List[Int])(Cons(_,_))
+foldRight(a, Nil:List[Int])(Cons(_,_))
+recursive(a)
 length(a)
