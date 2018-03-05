@@ -67,7 +67,7 @@ def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = {
 }
 
 // Exercise 3.12
-def recursive[A](as: List[A]): List[A] = foldLeft(as, Nil:List[A])((x, y) => Cons(y, x))
+def reverse[A](as: List[A]): List[A] = foldLeft(as, Nil:List[A])((x, y) => Cons(y, x))
 
 // Exercise 2.13
 //def foldLeft2[A, B](as: List[A], z: B)(f: (B, A) => B): B =
@@ -84,7 +84,10 @@ def appendLeft[A](a1: List[A], a2: List[A]): List[A] = foldLeft(a1, a2)((a, b) =
 appendLeft(List(1,2,3,4),List(5,6))
 
 def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
-    foldLeft(recursive(as), s)((b,a) => f(a,b))
+    foldLeft(reverse(as), s)((b,a) => f(a,b))
+
+def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
+  foldLeft(as, f)((g, a) => g(a, f(a,s)))
 
 object List {
   def sum(l: List[Int]): Int = l match {
@@ -127,7 +130,7 @@ drop(a, 3)
 init(a)
 
 foldRight(a, Nil:List[Int])(Cons(_,_))
-recursive(a)
+reverse(a)
 length(a)
 
 val str = List("m", "a", "j", "i", "d")
