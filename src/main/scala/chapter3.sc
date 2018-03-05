@@ -66,10 +66,25 @@ def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = {
   }
 }
 
+// Exercise 3.12
 def recursive[A](as: List[A]): List[A] = foldLeft(as, Nil:List[A])((x, y) => Cons(y, x))
 
+// Exercise 2.13
+//def foldLeft2[A, B](as: List[A], z: B)(f: (B, A) => B): B =
+//  as match {
+//    case Nil => z
+//    case Cons(x, xs) => foldRight(xs, x)(f(z, x))
+//  }
+//
+//foldLeft2(List(1,2,3,4), Nil:List[Int])((t, h) => Cons(h, t))
+
+def appendRight[A](a1: List[A], a2: List[A]): List[A] = foldRight(a1, a2)(Cons(_,_))
+appendRight(List(1,2,3,4),List(5,6))
+def appendLeft[A](a1: List[A], a2: List[A]): List[A] = foldLeft(a1, a2)((a, b) => Cons(b, a))
+appendLeft(List(1,2,3,4),List(5,6))
+
 object List {
-  def sum(ints: List[Int]): Int = ints match {
+  def sum(l: List[Int]): Int = l match {
     case Nil => 0
     case Cons(x, xs) => x + sum(xs)
   }
@@ -111,3 +126,10 @@ init(a)
 foldRight(a, Nil:List[Int])(Cons(_,_))
 recursive(a)
 length(a)
+
+val str = List("m", "a", "j", "i", "d")
+foldRight(List(2,10), 1)(_ / _)
+foldLeft(List(2, 10), 1)(_ / _)
+10/2/1
+1/2/10
+
