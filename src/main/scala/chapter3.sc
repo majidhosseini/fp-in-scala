@@ -84,7 +84,7 @@ def appendLeft[A](a1: List[A], a2: List[A]): List[A] = foldLeft(a1, a2)((a, b) =
 appendLeft(List(1,2,3,4),List(5,6))
 
 def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
-    foldLeft(reverse(as), s)((b,a) => f(a,b))
+    foldLeft(recursive(as), s)((b,a) => f(a,b))
 
 object List {
   def sum(l: List[Int]): Int = l match {
