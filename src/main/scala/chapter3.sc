@@ -86,8 +86,8 @@ appendLeft(List(1,2,3,4),List(5,6))
 def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
     foldLeft(reverse(as), s)((b,a) => f(a,b))
 
-def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
-  foldLeft(as, f)((g, a) => g(a, f(a,s)))
+//def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
+//  foldLeft(as, f)((g, a) => g(a, f(a,s)))
 
 object List {
   def sum(l: List[Int]): Int = l match {
