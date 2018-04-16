@@ -175,6 +175,23 @@ zipWith(List(1,2,3),List(4,5,6))((i,j) => i + j)
 
 
 // 3.24
+def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
+  case (Nil, Nil) => true
+  case (ps, Nil) => true
+  case (Nil, bs) => false
+  case (Cons(p, ps), Cons(b, bs)) if (p == b) => hasSubsequence(ps, bs)
+  case (Cons(p, ps), Cons(b, bs)) if (p != b) => hasSubsequence(ps, sub)
+}
+val a1 = List(1,2,3,4,5)
+val b1 = List(1,2,3)
+val b2 = List(3)
+val b3 = List(3,4,5)
+println(">>>>>>>>>>>>>>>>> 3.24")
+hasSubsequence(a1,b1)
+hasSubsequence(a1,b2)
+hasSubsequence(a1,b3)
+hasSubsequence(a1,List(4,5,6))
+
 
 val ex1: List[Double] = Nil
 val ex2: List[Int] = Cons(1, Nil)
