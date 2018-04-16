@@ -69,7 +69,7 @@ def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = {
 // Exercise 3.12
 def reverse[A](as: List[A]): List[A] = foldLeft(as, Nil:List[A])((x, y) => Cons(y, x))
 
-// Exercise 2.13
+// Exercise 3.13
 //def foldLeft2[A, B](as: List[A], z: B)(f: (B, A) => B): B =
 //  as match {
 //    case Nil => z
@@ -108,6 +108,73 @@ object List {
     if (as.isEmpty) Nil
     else Cons(as.head, apply(as.tail: _*))
 }
+
+// 3.16
+def transformer(l: List[Int]): List[Int] = l match {
+  case Nil => Nil
+  case Cons(x, xs) => Cons(x + 1, transformer(xs))
+}
+println(">>>>>>>>>>>>>>>>> 3.16")
+transformer(List(1,2,3,4,5))
+
+// 3.17
+def toStringConverter(l: List[Double]): List[String] = l match {
+  case Nil => Nil
+  case Cons(x, xs) => Cons(x.toString, toStringConverter(xs))
+}
+println(">>>>>>>>>>>>>>>>> 3.17")
+toStringConverter(List(1.1,2.0,3.58,4.01,5))
+
+// 3.18
+def map[A, B](as: List[A])(f: A => B): List[B] = as match {
+  case Nil => Nil
+  case Cons(x, xs) => Cons(f(x), map(xs)(f))
+}
+println(">>>>>>>>>>>>>>>>> 3.18")
+def toStringX(d: Double): String = d.toString
+map(List(1.1,2.0,3.58,4.01,5))(toStringX)
+
+
+// 3.19
+def filter[A](as: List[A])(f: A => Boolean): List[A] = as match {
+  case Nil => Nil
+  case Cons(x, xs) if (f(x) == true) => Cons(x, filter(xs)(f))
+  case Cons(_, xs) => filter(xs)(f)
+}
+println(">>>>>>>>>>>>>>>>> 3.19")
+def isEvenNumber(i: Int) = i % 2 == 0
+filter(List(1,2,3,4,5,6))(isEvenNumber)
+
+// 3.20
+def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = as match {
+  case Nil => Nil
+  case Cons(x, xs) => append(f(x),flatMap(xs)(f))
+}
+println(">>>>>>>>>>>>>>>>> 3.20")
+flatMap(List(1,2,3))(i => List(i, i))
+
+// 3.21
+def filter2[A](as: List[A])(f: A => Boolean): List[A] = flatMap(as)(a =>
+  f(a) match {
+    case true => Cons(a, Nil)
+    case false => Nil
+  }
+)
+println(">>>>>>>>>>>>>>>>> 3.21")
+filter2(List(1,2,3,4,5,6))(i => i % 2 == 0)
+
+// 3.22 and 3.23
+def zipWith[A](as: List[A], bs: List[A])(f: (A,A) => A): List[A] = (as, bs) match {
+  case (Nil, Nil) => Nil
+  case (xs, Nil) => xs
+  case (Nil, ys) => ys
+  case (Cons(x, xs), Cons(y, ys)) => Cons(f(x, y), zipWith(xs, ys)(f))
+}
+println(">>>>>>>>>>>>>>>>> 3.22 and 3.23")
+zipWith(List(1,2,3),List(4,5,6))((i,j) => i + j)
+
+
+// 3.24
 
 val ex1: List[Double] = Nil
 val ex2: List[Int] = Cons(1, Nil)
