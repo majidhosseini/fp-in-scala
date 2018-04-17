@@ -31,8 +31,5 @@ def map[A,B](t: Tree[A])(f: A => B): Tree[B] = t match {
 // 3.29
 def fold[A,B](t: Tree[A], z: B)(f: (A, B) => B): B = t match {
   case Leaf(x) => f(x, z)
-  case Branch(left, right) => ???
+  case Branch(left, right) => fold(left, fold(right, z)(f))(f)
 }
-
-
-//val temp = Tree
