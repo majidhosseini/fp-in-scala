@@ -1,4 +1,5 @@
 import scala.{Either => _, Option => _, _}
+import scala.Seq._
 
 //sealed trait Option[+A]
 
@@ -27,7 +28,33 @@ sealed trait Option[+A] {
     case Somestan(a) if f(a) == true => Somestan(a)
     case _ => Nonestan
   }
+
+  def mean(xs: Seq[Double]): Option[Double] = ??? // this match {
+//    case xs.isEmpty => Nonestan
+//    case Some(xs) => xs.sum / xs.length
+//  }
+
+  // 4.2
+  def variance(xs: Seq[Double]): Option[Double] =
+    mean(xs) flatMap (m => mean(xs.map(x => math.pow(x - m, 2))))
 }
 
 case class Somestan[+A](get: A) extends Option[A]
 case object Nonestan extends Option[Nothing]
+
+// 4.3
+def map2[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = {
+  a flatMap { a2 =>
+    b map { b2 =>
+      f(a2, b2)
+    }
+  }
+}
+
+// 4.4
+def sequence[A](xa: List[Option[A]]): Option[List[A]] = {
+  xa match {
+    case Nil => Nonestan
+    case h :: t => h flatMap(a => sequence(t) map (a :: _))
+  }
+}
