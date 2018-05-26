@@ -42,6 +42,10 @@ sealed trait Option[+A] {
 case class Somestan[+A](get: A) extends Option[A]
 case object Nonestan extends Option[Nothing]
 
+def Try[A](a: => A): Option[A] =
+  try Somestan(a)
+  catch { case e: Exception => Nonestan }
+
 // 4.3
 def map2[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = {
   a flatMap { a2 =>
@@ -57,4 +61,13 @@ def sequence[A](xa: List[Option[A]]): Option[List[A]] = {
     case Nil => Nonestan
     case h :: t => h flatMap(a => sequence(t) map (a :: _))
   }
+}
+
+def parseInt(a: List[String]): Option[List[Int]] = {
+  sequence(a.map(i => Try(i.toInt)))
+}
+
+// 4.5
+def traverse[A, B](xa: List[A])(f: A => Option[B]): Option[List[B]] = {
+  sequence(xa.map(a => f(a)))
 }
