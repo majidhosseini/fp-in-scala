@@ -4,6 +4,7 @@ sealed trait List[+A]
 case object Nil extends List[Nothing]
 case class Cons[+A](head: A, tail: List[A]) extends List[A]
 
+//3.2
 def tail[A](l: List[A]): List[A] = {
   l match {
     case Nil => Nil
@@ -11,6 +12,7 @@ def tail[A](l: List[A]): List[A] = {
   }
 }
 
+//3.3
 def setHead[A](ds: List[A], head: A): List[A] = {
   ds match {
     case Nil => List(head)
@@ -18,6 +20,7 @@ def setHead[A](ds: List[A], head: A): List[A] = {
   }
 }
 
+//3.4
 def drop[A](l: List[A], n: Int): List[A] = {
   l match {
     case Nil => Nil
@@ -26,6 +29,7 @@ def drop[A](l: List[A], n: Int): List[A] = {
   }
 }
 
+//3.5
 def dropWhile[A](l: List[A], f: A => Boolean): List[A] = {
   l match {
     case Nil => Nil
@@ -42,6 +46,7 @@ def append[A](a1: List[A], a2: List[A]): List[A] = {
   }
 }
 
+//3.6
 def init[A](l: List[A]): List[A] = {
   l match {
     case Cons(x,Nil) => Nil
@@ -69,6 +74,25 @@ def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = {
 // Exercise 3.12
 def reverse[A](as: List[A]): List[A] = foldLeft(as, Nil:List[A])((x, y) => Cons(y, x))
 
+
+// 3.13
+def foldLeftWithFoldRight[A, B](as: List[A], z: B)(f: (A,B) => B): B = {
+  as match {
+    case Nil => z
+    case Cons(x, xs) => foldRight(xs, f(x, z))((a, _) => f(a, z))
+  }
+}
+
+// identity a => a
+def fr2[A, B](z: B, as: List[A])(f: (A, B) => B): B = {
+  foldLeft(as, identity[B](_))((acc, a) => newZ => acc(f(a, newZ)))(z)
+}
+
+//def test[A, B](as: List[A], z: B)(f: (A,B) => B): B
+
+
+fr2(1, List(10,2,300))(_ + _)
+
 // Exercise 3.13
 //def foldLeft2[A, B](as: List[A], z: B)(f: (B, A) => B): B =
 //  as match {
@@ -78,16 +102,53 @@ def reverse[A](as: List[A]): List[A] = foldLeft(as, Nil:List[A])((x, y) => Cons(
 //
 //foldLeft2(List(1,2,3,4), Nil:List[Int])((t, h) => Cons(h, t))
 
-def appendRight[A](a1: List[A], a2: List[A]): List[A] = foldRight(a1, a2)(Cons(_,_))
-appendRight(List(1,2,3,4),List(5,6))
-def appendLeft[A](a1: List[A], a2: List[A]): List[A] = foldLeft(a1, a2)((a, b) => Cons(b, a))
-appendLeft(List(1,2,3,4),List(5,6))
-
 def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
-    foldLeft(reverse(as), s)((b,a) => f(a,b))
+  foldLeft(as, identity[B](_))((a, b) => x => a(f(b,x)))(s)
 
 //def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
 //  foldLeft(as, f)((g, a) => g(a, f(a,s)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 3.14
+def appendRight[A](a1: List[A], a2: List[A]): List[A] = foldRight(a1, a2)(Cons(_,_))
+appendRight(List(1,2,3,4),List(5,6))
+def appendLeft[A](a1: List[A], a2: List[A]): List[A] = foldLeft(reverse(a1), a2)((a, b) => Cons(b, a))
+appendLeft(List(1,2,3,4),List(5,6))
+
+
+//3.15
+def concatenates[A](as: List[List[A]]): List[A] = {
+  as match {
+    case Nil => Nil
+    case Cons(x, xs) => appendLeft(x, concatenates(xs))
+  }
+}
+
+
+//def flatten[A](l: List[List[A]]): List[A] = {
+//  foldRight[List[A], List[A]](l, Nill) { (curr, acc) =>
+//    foldRight(curr, acc)((curr2, acc2) => Cons(curr2, acc2))
+//  }
+//}
+
+
+concatenates(List(List(1,2,3), List(4,5,6), List(7,8,9)))
+
 
 object List {
   def sum(l: List[Int]): Int = l match {
@@ -95,6 +156,7 @@ object List {
     case Cons(x, xs) => x + sum(xs)
   }
 
+  //3.7
   def product(ds: List[Double]): Double = ds match {
     case Nil => 1.0
     case Cons(0.0, _) => 0.0
@@ -117,6 +179,9 @@ def transformer(l: List[Int]): List[Int] = l match {
 println(">>>>>>>>>>>>>>>>> 3.16")
 transformer(List(1,2,3,4,5))
 
+def tran2(l: List[Int]): List[Int] =
+
+
 // 3.17
 def toStringConverter(l: List[Double]): List[String] = l match {
   case Nil => Nil
@@ -124,6 +189,30 @@ def toStringConverter(l: List[Double]): List[String] = l match {
 }
 println(">>>>>>>>>>>>>>>>> 3.17")
 toStringConverter(List(1.1,2.0,3.58,4.01,5))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // 3.18
 def map[A, B](as: List[A])(f: A => B): List[B] = as match {
@@ -135,12 +224,31 @@ def toStringX(d: Double): String = d.toString
 map(List(1.1,2.0,3.58,4.01,5))(toStringX)
 
 
+
+
+
+// 3.19
+
+// write with foldRight
+
+def filter2[A](as: List[A])(f: A => Boolean): List[A] = {
+
+}
+
+
+// 3.20
+def flatMap[A, B](as: List[A])(f: A => List[B])
+
+
+
+
 // 3.19
 def filter[A](as: List[A])(f: A => Boolean): List[A] = as match {
   case Nil => Nil
   case Cons(x, xs) if (f(x) == true) => Cons(x, filter(xs)(f))
   case Cons(_, xs) => filter(xs)(f)
 }
+
 println(">>>>>>>>>>>>>>>>> 3.19")
 def isEvenNumber(i: Int) = i % 2 == 0
 filter(List(1,2,3,4,5,6))(isEvenNumber)
@@ -161,13 +269,12 @@ def filter2[A](as: List[A])(f: A => Boolean): List[A] = flatMap(as)(a =>
   }
 )
 println(">>>>>>>>>>>>>>>>> 3.21")
-filter2(List(1,2,3,4,5,6))(i => i % 2 == 0)
+//filter2(List(1,2,3,4,5,6))(i => i % 2 == 0)
 
 // 3.22 and 3.23
 def zipWith[A](as: List[A], bs: List[A])(f: (A,A) => A): List[A] = (as, bs) match {
-  case (Nil, Nil) => Nil
-  case (xs, Nil) => xs
-  case (Nil, ys) => ys
+  case (xs, Nil) => Nil
+  case (Nil, ys) => Nil
   case (Cons(x, xs), Cons(y, ys)) => Cons(f(x, y), zipWith(xs, ys)(f))
 }
 println(">>>>>>>>>>>>>>>>> 3.22 and 3.23")
@@ -222,4 +329,8 @@ foldRight(List(2,10), 1)(_ / _)
 foldLeft(List(2, 10), 1)(_ / _)
 10/2/1
 1/2/10
+
+
+
+
 
