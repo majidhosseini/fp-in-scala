@@ -4,12 +4,14 @@ trait RNG {
   def nextInt: (Int, RNG)
 }
 
-case class SimpleRNG(seed: Long) extends RNG {
-  override def nextInt: (Int, RNG) = {
-    val newSeed = (seed * 0x5DEECE66DL + 0xBL) & 0xFFFFFFFFFFFFL
-    val nextRNG =  SimpleRNG(newSeed)
-    val n = (newSeed >>> 16).toInt
-    (n, nextRNG)
+object RNG {
+  case class SimpleRNG(seed: Long) extends RNG {
+    override def nextInt: (Int, RNG) = {
+      val newSeed = (seed * 0x5DEECE66DL + 0xBL) & 0xFFFFFFFFFFFFL
+      val nextRNG = SimpleRNG(newSeed)
+      val n = (newSeed >>> 16).toInt
+      (n, nextRNG)
+    }
   }
 
   def randomPair(rng: RNG): ((Int,Int), RNG) = {
@@ -122,7 +124,7 @@ case class SimpleRNG(seed: Long) extends RNG {
   }
 
   // 6.9
-  def mapWithFlatMap[A,B](s: Rand[A])(f: A => B): Rand[B] = flatMap(s)(a => unit(f(a)))
+  def mapWithFlatMap[A,B](ra: Rand[A])(f: A => B): Rand[B] = flatMap(ra)(a => unit(f(a)))
 
   // 6.9
   def map2WithFlatMap[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = {
