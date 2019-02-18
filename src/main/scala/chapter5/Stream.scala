@@ -165,6 +165,7 @@ sealed trait Stream[+A] {
     this.zipAll(s).takeWhile(!_._2.isEmpty).forAll(x => x._1 == x._2)
   }
 
+  // 5.15
   def tails: Stream[Stream[A]] = {
     Stream.unfold(this){ case Cons(h, t) =>
       Some((Cons(h, t), t()))
@@ -174,6 +175,7 @@ sealed trait Stream[+A] {
 
   def hasSubsequence[A](s: Stream[A]): Boolean = tails.exist(_.startsWith(s))
 
+  // 5.16
   def scanRight[B](z: => B)(f: (A, => B) => B): Stream[B] = {
     this.tails.map(r => r.foldRight(z)(f)).append(Stream(z))
   }

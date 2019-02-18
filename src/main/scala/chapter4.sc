@@ -29,14 +29,26 @@ sealed trait Option[+A] {
     case _ => Nonestan
   }
 
-  def mean(xs: Seq[Double]): Option[Double] = ??? // this match {
-//    case xs.isEmpty => Nonestan
-//    case Some(xs) => xs.sum / xs.length
-//  }
-
   // 4.2
   def variance(xs: Seq[Double]): Option[Double] =
     mean(xs) flatMap (m => mean(xs.map(x => math.pow(x - m, 2))))
+
+  def lift[A,B](f: A => B): Option[A] => Option[B] = _ map f
+
+
+  // 4.3
+  def map2[B,C](b: Option[B])(f: (A, B) => C): Option[C] = {
+    this flatMap { a2 =>
+      b map { b2 =>
+        f(a2, b2)
+      }
+    }
+  }
+}
+
+def mean(xs: Seq[Double]): Option[Double] = xs.isEmpty match {
+  case true  => Nonestan
+  case false => Somestan(xs.sum / xs.length)
 }
 
 case class Somestan[+A](get: A) extends Option[A]
@@ -45,15 +57,6 @@ case object Nonestan extends Option[Nothing]
 def Try[A](a: => A): Option[A] =
   try Somestan(a)
   catch { case e: Exception => Nonestan }
-
-// 4.3
-def map2[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = {
-  a flatMap { a2 =>
-    b map { b2 =>
-      f(a2, b2)
-    }
-  }
-}
 
 // 4.4
 def sequence[A](xa: List[Option[A]]): Option[List[A]] = {
@@ -72,40 +75,7 @@ def traverse[A, B](xa: List[A])(f: A => Option[B]): Option[List[B]] = {
   sequence(xa.map(a => f(a)))
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def mean(as: List[Double]): Option[Double] =
+def mean2(as: List[Double]): Option[Double] =
   as match {
     case Nil => Nonestan
     case _ => Somestan(as.foldRight(0D)(_ + _) / as.length)
@@ -136,68 +106,12 @@ def traverse2[A, B](as: List[A])(f: A => Option[B]): Option[List[B]] = {
   sequence2(as.map(f(_)))
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def sequence3[A](a: List[Option[A]]): Option[List[A]] = {
   a match {
     case Nil => Nonestan
     case x :: xs => x.flatMap(xx => sequence3(xs).map(xx :: _))
   }
 }
-
-
 
 val l = List(Somestan(1), Somestan(1), Somestan(3), Nonestan, Somestan(5), Nonestan, Somestan(10))
 sequence(l)
