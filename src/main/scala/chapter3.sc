@@ -15,7 +15,7 @@ def tail[A](l: List[A]): List[A] = {
 //3.3
 def setHead[A](ds: List[A], head: A): List[A] = {
   ds match {
-    case Nil => List(head)
+    case Nil => Cons(head, Nil)
     case _ => Cons(head, ds)
   }
 }
@@ -46,11 +46,12 @@ def append[A](a1: List[A], a2: List[A]): List[A] = {
   }
 }
 
+
 //3.6
 def init[A](l: List[A]): List[A] = {
   l match {
-    case Cons(x,Nil) => Nil
     case Nil => Nil
+    case Cons(_, Nil) => Nil
     case Cons(x, xs) => Cons(x, init(xs))
   }
 }
@@ -76,59 +77,39 @@ def reverse[A](as: List[A]): List[A] = foldLeft(as, Nil:List[A])((x, y) => Cons(
 
 
 // 3.13
-def foldLeftWithFoldRight[A, B](as: List[A], z: B)(f: (A,B) => B): B = {
+def foldLeftWithFoldRight[A, B](as: List[A], z: B)(f: (B, A) => B): B = {
   as match {
     case Nil => z
-    case Cons(x, xs) => foldRight(xs, f(x, z))((a, _) => f(a, z))
+    case Cons(x, xs) => foldRight(xs, f(z, x))((a, b) => f(z, a))
   }
 }
 
+def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
+foldLeft(as, identity[B](_))((a, b) => x => a(f(b,x)))(s)
+
 // identity a => a
-def fr2[A, B](z: B, as: List[A])(f: (A, B) => B): B = {
+def fr2[A, B](as: List[A], z: B)(f: (A, B) => B): B = {
   foldLeft(as, identity[B](_))((acc, a) => newZ => acc(f(a, newZ)))(z)
 }
 
-//def test[A, B](as: List[A], z: B)(f: (A,B) => B): B
+def foldRightWithFoldLeftWithRev[A,B](as: List[A], z: B)(f: (A,B) => B): B =
+  foldLeft(reverse(as), z)((b, a) => f(a, b))
+
+val fll = Cons(32, Cons(4, Cons(2, Nil)))
+foldLeft(fll, 1024)(_ + _)
+foldLeftWithFoldRight(fll, 1024)(_ + _)
+foldRightWithFoldLeftWithRev(fll, 1024)(_ + _)
+fr2(fll, 1024)(_ + _)
 
 
-fr2(1, List(10,2,300))(_ + _)
-
-// Exercise 3.13
-//def foldLeft2[A, B](as: List[A], z: B)(f: (B, A) => B): B =
-//  as match {
-//    case Nil => z
-//    case Cons(x, xs) => foldRight(xs, x)(f(z, x))
-//  }
-//
-//foldLeft2(List(1,2,3,4), Nil:List[Int])((t, h) => Cons(h, t))
-
-def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
-  foldLeft(as, identity[B](_))((a, b) => x => a(f(b,x)))(s)
-
-//def foldRightWithFoldLeft[A,B](as: List[A], s: B)(f: (A,B) => B): B =
-//  foldLeft(as, f)((g, a) => g(a, f(a,s)))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+val l1 = Cons(1, Cons(2, Cons(3, Cons(4, Nil))))
+val l2 = Cons(5, Cons(6, Nil))
 
 // 3.14
 def appendRight[A](a1: List[A], a2: List[A]): List[A] = foldRight(a1, a2)(Cons(_,_))
-appendRight(List(1,2,3,4),List(5,6))
+appendRight(l1, l2)
 def appendLeft[A](a1: List[A], a2: List[A]): List[A] = foldLeft(reverse(a1), a2)((a, b) => Cons(b, a))
-appendLeft(List(1,2,3,4),List(5,6))
+appendLeft(l1, l2)
 
 
 //3.15
@@ -139,16 +120,8 @@ def concatenates[A](as: List[List[A]]): List[A] = {
   }
 }
 
-
-//def flatten[A](l: List[List[A]]): List[A] = {
-//  foldRight[List[A], List[A]](l, Nill) { (curr, acc) =>
-//    foldRight(curr, acc)((curr2, acc2) => Cons(curr2, acc2))
-//  }
-//}
-
-
-concatenates(List(List(1,2,3), List(4,5,6), List(7,8,9)))
-
+val l3 = Cons(7, Cons(8, Cons(9, Nil)))
+concatenates(Cons(l1, Cons(l2, Cons(l3, Nil))))
 
 object List {
   def sum(l: List[Int]): Int = l match {
@@ -164,7 +137,7 @@ object List {
   }
 
   def sum2(ns: List[Int]) = foldRight(ns, 0)((x, y) => x + y)
-  def product2(ns: List[Int]) = foldRight(ns, 1.0)(_ * _)
+  def product2(ns: List[Double]) = foldRight(ns, 1.0)(_ * _)
 
   def apply[A](as: A*): List[A] =
     if (as.isEmpty) Nil
@@ -177,70 +150,48 @@ def transformer(l: List[Int]): List[Int] = l match {
   case Cons(x, xs) => Cons(x + 1, transformer(xs))
 }
 println(">>>>>>>>>>>>>>>>> 3.16")
-transformer(List(1,2,3,4,5))
+transformer(Cons(1,Cons(2,Cons(3,Cons(4, Cons(5, Nil))))))
 
-def tran2(l: List[Int]): List[Int] =
+def tranWithFoldRight(l: List[Int]): List[Int] = {
+  foldRightWithFoldLeftWithRev(l, Nil: List[Int])((a, b) => Cons(a + 1, b))
+}
+tranWithFoldRight(Cons(1,Cons(2,Cons(3,Cons(4, Cons(5, Nil))))))
 
+// TODO:
+// For List(5, 4, 3, 2, 1) => List(1, 1, 1, 1, 1)
 
 // 3.17
 def toStringConverter(l: List[Double]): List[String] = l match {
   case Nil => Nil
   case Cons(x, xs) => Cons(x.toString, toStringConverter(xs))
 }
+
+def toStringConverterWithFoldRight(l: List[Double]): List[String] =
+  foldRightWithFoldLeftWithRev(l, Nil:List[String])((a, b) => Cons(a.toString, b))
+
 println(">>>>>>>>>>>>>>>>> 3.17")
-toStringConverter(List(1.1,2.0,3.58,4.01,5))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+toStringConverter(Cons(1.1, Cons(2.0, Cons(3.58, Cons(4.01, Cons(5d, Nil))))))
+toStringConverterWithFoldRight(Cons(1.1, Cons(2.0, Cons(3.58, Cons(4.01, Cons(5d, Nil))))))
 
 // 3.18
 def map[A, B](as: List[A])(f: A => B): List[B] = as match {
   case Nil => Nil
   case Cons(x, xs) => Cons(f(x), map(xs)(f))
 }
+
+def mapWithFold[A, B](as: List[A])(f: A => B): List[B] =
+  foldRight(as, Nil:List[B])((a, b) => Cons(f(a), b))
+
 println(">>>>>>>>>>>>>>>>> 3.18")
 def toStringX(d: Double): String = d.toString
-map(List(1.1,2.0,3.58,4.01,5))(toStringX)
-
-
-
-
+map(Cons(1.1, Cons(2.0, Cons(3.58, Cons(4.01, Cons(5d, Nil))))))(toStringX)
+mapWithFold(Cons(1.1, Cons(2.0, Cons(3.58, Cons(4.01, Cons(5d, Nil))))))(toStringX)
 
 // 3.19
-
 // write with foldRight
-
-def filter2[A](as: List[A])(f: A => Boolean): List[A] = {
-
+def filterWithFoldRight[A](as: List[A])(f: A => Boolean): List[A] = {
+  foldRight(as, Nil:List[A])((a, b) => if (f(a)) Cons(a, b) else b)
 }
-
-
-// 3.20
-def flatMap[A, B](as: List[A])(f: A => List[B])
-
-
-
 
 // 3.19
 def filter[A](as: List[A])(f: A => Boolean): List[A] = as match {
@@ -249,17 +200,23 @@ def filter[A](as: List[A])(f: A => Boolean): List[A] = as match {
   case Cons(_, xs) => filter(xs)(f)
 }
 
+val l = Cons(1, Cons(2, Cons(3, Cons(4, Cons(5, Nil)))))
+
 println(">>>>>>>>>>>>>>>>> 3.19")
 def isEvenNumber(i: Int) = i % 2 == 0
-filter(List(1,2,3,4,5,6))(isEvenNumber)
+filter(l)(isEvenNumber)
 
 // 3.20
 def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = as match {
   case Nil => Nil
   case Cons(x, xs) => append(f(x),flatMap(xs)(f))
 }
+
+def flatMapWithOthers[A,B](as: List[A])(f: A => List[B]): List[B] =
+  concatenates(map(as)(f))
+
 println(">>>>>>>>>>>>>>>>> 3.20")
-flatMap(List(1,2,3))(i => List(i, i))
+flatMap(l)(i => List(i, i))
 
 // 3.21
 def filter2[A](as: List[A])(f: A => Boolean): List[A] = flatMap(as)(a =>
@@ -269,7 +226,7 @@ def filter2[A](as: List[A])(f: A => Boolean): List[A] = flatMap(as)(a =>
   }
 )
 println(">>>>>>>>>>>>>>>>> 3.21")
-//filter2(List(1,2,3,4,5,6))(i => i % 2 == 0)
+filter2(l)(i => i % 2 == 0)
 
 // 3.22 and 3.23
 def zipWith[A](as: List[A], bs: List[A])(f: (A,A) => A): List[A] = (as, bs) match {
@@ -277,8 +234,19 @@ def zipWith[A](as: List[A], bs: List[A])(f: (A,A) => A): List[A] = (as, bs) matc
   case (Nil, ys) => Nil
   case (Cons(x, xs), Cons(y, ys)) => Cons(f(x, y), zipWith(xs, ys)(f))
 }
+
+def zipWithWithMap[A](as: List[A], bs: List[A])(f: (A,A) => A): List[A] = {
+  flatMap(as) { a =>
+    map(bs) { b =>
+      f(a, b)
+    }
+  }
+}
+
+
 println(">>>>>>>>>>>>>>>>> 3.22 and 3.23")
-zipWith(List(1,2,3),List(4,5,6))((i,j) => i + j)
+zipWith(Cons(1,Cons(2,Cons(3, Nil))),Cons(4, Cons(5, Cons(6, Nil))))((i,j) => i + j)
+zipWithWithMap(Cons(1,Cons(2,Cons(3, Nil))),Cons(4, Cons(5, Cons(6, Nil))))((i,j) => i + j)
 
 
 // 3.24
@@ -289,7 +257,7 @@ def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
   case (Cons(p, ps), Cons(b, bs)) if (p == b) => hasSubsequence(ps, bs)
   case (Cons(p, ps), Cons(b, bs)) if (p != b) => hasSubsequence(ps, sub)
 }
-val a1 = List(1,2,3,4,5)
+val a1 = Cons(1, Cons(2, Cons(3, Cons(4, Cons(5, Nil)))))
 val b1 = List(1,2,3)
 val b2 = List(3)
 val b3 = List(3,4,5)
@@ -309,16 +277,20 @@ List(1,2,3,4,5) match {
   case Cons(x, Cons(2, Cons(4, _))) => x
   case Nil => 42
   case Cons(x, Cons(y, Cons(3, Cons(4, _)))) => x + y
-  case Cons(h, t) => h + sum(t)
+  case Cons(h, t) => h + List.sum(t)
   case _ => 101
 }
 
 tail(ex3)
 
-val a = List(1,2,3,4, 10)
+val a = List(1,2,3,4,10)
 drop(a, 3)
 
 init(a)
+
+val b = Cons(1d, Cons(2d, Cons(0.0, Cons(4d, Nil))))
+List.product2(b)
+
 
 foldRight(a, Nil:List[Int])(Cons(_,_))
 reverse(a)
@@ -329,8 +301,3 @@ foldRight(List(2,10), 1)(_ / _)
 foldLeft(List(2, 10), 1)(_ / _)
 10/2/1
 1/2/10
-
-
-
-
-
