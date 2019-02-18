@@ -209,7 +209,7 @@ filter(l)(isEvenNumber)
 // 3.20
 def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = as match {
   case Nil => Nil
-  case Cons(x, xs) => append(f(x),flatMap(xs)(f))
+  case Cons(x, xs) => append(f(x), flatMap(xs)(f))
 }
 
 def flatMapWithOthers[A,B](as: List[A])(f: A => List[B]): List[B] =
@@ -250,22 +250,25 @@ zipWithWithMap(Cons(1,Cons(2,Cons(3, Nil))),Cons(4, Cons(5, Cons(6, Nil))))((i,j
 
 
 // 3.24
-def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
+def hasSubsequence[A](sup: List[A], sub: List[A], isStarted: Boolean = false): Boolean = (sup, sub) match {
   case (Nil, Nil) => true
-  case (ps, Nil) => true
-  case (Nil, bs) => false
-  case (Cons(p, ps), Cons(b, bs)) if (p == b) => hasSubsequence(ps, bs)
-  case (Cons(p, ps), Cons(b, bs)) if (p != b) => hasSubsequence(ps, sub)
+  case (_, Nil) => true
+  case (Nil, _) => false
+  case (Cons(p, ps), Cons(b, bs)) if (p == b) => hasSubsequence(ps, bs, true)
+  case (Cons(p, ps), Cons(b, bs)) if (p != b) && isStarted => false
+  case (Cons(p, ps), Cons(b, bs)) if (p != b) => hasSubsequence(ps, sub, false)
 }
+
 val a1 = Cons(1, Cons(2, Cons(3, Cons(4, Cons(5, Nil)))))
 val b1 = List(1,2,3)
-val b2 = List(3)
+val b2 = List(1,3)
 val b3 = List(3,4,5)
 println(">>>>>>>>>>>>>>>>> 3.24")
-hasSubsequence(a1,b1)
-hasSubsequence(a1,b2)
-hasSubsequence(a1,b3)
-hasSubsequence(a1,List(4,5,6))
+hasSubsequence(a1, b1)
+hasSubsequence(a1, b2)
+hasSubsequence(a1, b3)
+hasSubsequence(a1, List(4,5,6))
+hasSubsequence(a1, Nil)
 
 
 val ex1: List[Double] = Nil
